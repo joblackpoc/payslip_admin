@@ -200,6 +200,7 @@ class Main extends CI_Controller
        }
        public function import()
        {
+           
            if(isset($_POST['submit']))
            {
                 $file = rand(1000,100000)."-".$_FILES['file']['name'];
@@ -250,6 +251,65 @@ class Main extends CI_Controller
            } else {
                echo "Moving Failed";
            }
+       }
+       public function add()
+       {
+            $this->form_validation->set_rules('password','รหัสผ่าน','required|min_length[6]');
+            $this->form_validation->set_rules('password','ยืนยันรหัสผ่าน','required|min_length[6]|matches[password]');
+            $this->form_validation->set_rules('email','อีเมล์','required');
+            $this->form_validation->set_rules('phone','เบอร์โทรศัพท์','required');
+
+           if($this->input->post("btsave")!=NULL && $this->form_validation->run() == TRUE)
+           {
+               echo "btsave has been pushed";
+               $ar = array(
+                   "username" => $this->input->post("username"),
+                   "password" => md5($this->input->post("password")),
+                   "fname" => $this->input->post("fname"),
+                   "lname" => $this->input->post("lname"),
+                   "phone" => $this->input->post("phone"),
+                   "email" => $this->input->post("email"),
+                   "active" => $this->input->post("active")
+               );
+               $this->db->insert("user_admin",$ar);
+               redirect("","refresh");
+               exit();
+           }
+       }
+       public function edit($username)
+       {
+            $this->form_validation->set_rules('password','รหัสผ่าน','required|min_length[6]');
+            $this->form_validation->set_rules('password','ยืนยันรหัสผ่าน','required|min_length[6]|matches[password]');
+            $this->form_validation->set_rules('email','อีเมล์','required');
+            $this->form_validation->set_rules('phone','เบอร์โทรศัพท์','required');
+
+        if($this->input->post("btsave")!=NULL && $this->form_validation->run() == TRUE)
+        {
+            $ar = array(
+                "password" => md5($this->input->post("password")),
+                "fname"    => $this->input->post("fname"),
+                "lname"    => $this->input->post("lname"),
+                "phone"    => $this->input->post("phone"),
+                "email"    => $this->input->post("email"),
+                "active"   => $this->input->post("active")  
+            );
+            $this->db->where("username",$username);
+            $this->db->update("user_admin",$ar);
+            redirect("","refresh");
+            exit();
+        }
+       }
+       public function delete($username)
+       {
+           $this->db->delete("user_admin",array("username"=>$username));
+           redirect("","refresh");
+           exit();
+       }
+       public function search($keyword=0)
+       {
+           $keyword = $this->input->post("keyword");
+           $data['rs'] = $this->search->search($keyword);
+           $this->load->view("",$data);
        }
 
 
